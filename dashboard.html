@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Community Center Admin Portal</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+<div class="profile-section">
+    <i class="fas fa-user-circle profile-icon"></i>
+    <p id="userEmail"></p>
+    <div class="logout-menu" id="logoutMenu">
+        <button id="logoutButton">Logout</button>
+    </div>
+</div>
+
+
+<div class="container">
+    <h1>Relief and Recovery Admin Portal</h1>
+    <form id="communityForm">
+
+        <label for="center_status">Choose Center:</label>
+        <select id="center_status" name="center_status" required>
+            <option class="select_option" value="Recovery Center">Recovery Center</option>
+            <option class="select_option" value="Relief Center">Relief Center</option>
+        </select>
+
+        <table id="centers">
+            <thead>
+            <tr>
+                <th>Day</th>
+                <th>Open Time</th>
+                <th>Close Time</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>Monday</td>
+                <td><input type="time" id="monday_open" name="monday_open"></td>
+                <td><input type="time" id="monday_close" name="monday_close"></td>
+            </tr>
+            <tr>
+                <td>Tuesday</td>
+                <td><input type="time" id="tuesday_open" name="tuesday_open"></td>
+                <td><input type="time" id="tuesday_close" name="tuesday_close"></td>
+            </tr>
+            <tr>
+                <td>Wednesday</td>
+                <td><input type="time" id="wednesday_open" name="wednesday_open"></td>
+                <td><input type="time" id="wednesday_close" name="wednesday_close"></td>
+            </tr>
+            <tr>
+                <td>Thursday</td>
+                <td><input type="time" id="thursday_open" name="thursday_open"></td>
+                <td><input type="time" id="thursday_close" name="thursday_close"></td>
+            </tr>
+            <tr>
+                <td>Friday</td>
+                <td><input type="time" id="friday_open" name="friday_open"></td>
+                <td><input type="time" id="friday_close" name="friday_close"></td>
+            </tr>
+            <tr>
+                <td>Saturday</td>
+                <td><input type="time" id="saturday_open" name="saturday_open"></td>
+                <td><input type="time" id="saturday_close" name="saturday_close"></td>
+            </tr>
+            <tr>
+                <td>Sunday</td>
+                <td><input type="time" id="sunday_open" name="sunday_open"></td>
+                <td><input type="time" id="sunday_close" name="sunday_close"></td>
+            </tr>
+            </tbody>
+        </table>
+        <label for="location">Location:</label>
+        <input type="text" id="location" name="location" placeholder="Search address - autocomplete" autocomplete="off" required>
+
+        <label for="services_available">Services Available (comma-separated):</label>
+        <input type="text" id="services_available" name="services_available" required>
+
+        <label for="website">Website:</label>
+        <input type="url" id="website" name="website">
+
+
+        <label for="added_by">Added By:</label>
+        <input type="text" id="added_by" name="added_by" required>
+
+        <label for="updated_by">Updated By:</label>
+        <input type="text" id="updated_by" name="updated_by" required>
+
+        <div class="button-container">
+            <button type="submit">Submit</button>
+        </div>
+    </form>
+</div>
+
+<h2>Active Relief And Recovery Centers</h2>
+<div class="table-scroll-container">
+    <table id="communityTable" class="scrollable-table">
+        <thead>
+        <tr>
+            <!-- <th>ID</th> -->
+            <th>Location</th>
+            <th>Opens</th>
+            <th>Services Available</th>
+            <th>Website</th>
+            <th>Center Status</th>
+            <th>Last Updated</th>
+            <th>Added By</th>
+            <th>Updated By</th>
+            <th>Deleted</th>
+            <th>Disabled</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <!-- Data will be dynamically added here -->
+        </tbody>
+    </table>
+</div>
+
+
+<script>
+    let autocomplete;
+
+    function initMap() {
+        autocomplete = new google.maps.places.Autocomplete(
+            document.getElementById("location"),
+            {
+                types: ['geocode'],
+                componentRestrictions: {'country': ['AU']},
+                // fields: ['place_id', 'geometry', 'name']
+            }
+        );
+
+        autocomplete.addListener('place_changed', onPlaceChanged);
+    }
+
+    function onPlaceChanged() {
+        var place = autocomplete.getPlace();
+
+        if (!place.geometry) {
+            document.getElementById('location').placeholder = 'Enter a place';
+        } else {
+            // Optionally update other fields based on the selected place
+            document.getElementById('services_available').focus(); // Focus on services available field
+        }
+    }
+</script>
+
+<script async defer
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAUsXRUXnavthEq2krHHUjQU2P_KNswKbw&libraries=places&callback=initMap"></script>
+<script src="/js/dashboard.js"></script>
+</body>
+</html>
