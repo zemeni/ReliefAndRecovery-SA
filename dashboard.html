@@ -21,10 +21,21 @@
     <h1>Relief and Recovery Admin Portal</h1>
     <form id="communityForm">
 
-        <label for="center_status">Choose Center:</label>
-        <select id="center_status" name="center_status" required>
+        <label for="category">Choose Center:</label>
+        <select id="category" name="category" required>
             <option class="select_option" value="Recovery Center">Recovery Center</option>
             <option class="select_option" value="Relief Center">Relief Center</option>
+        </select>
+
+        <label for="WarningLevel">Warning Level:</label>
+        <select id="WarningLevel" name="WarningLevel" required>
+            <option class="select_option" value="Public Notice">Public Notice</option>
+        </select>
+
+        <label for="center_status">Center Status:</label>
+        <select id="center_status" name="center_status" required>
+            <option class="select_option" value="Open">Open</option>
+            <option class="select_option" value="Close">Close</option>
         </select>
 
         <table id="centers">
@@ -115,7 +126,6 @@
         </tr>
         </thead>
         <tbody>
-        <!-- Data will be dynamically added here -->
         </tbody>
     </table>
 </div>
@@ -150,7 +160,7 @@
 </script>
 
 <script async defer
-        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAUsXRUXnavthEq2krHHUjQU2P_KNswKbw&libraries=places&callback=initMap"></script>
+        src="https://maps.googleapis.com/maps/api/js?key=&libraries=places&callback=initMap"></script>
 <script src="/js/dashboard.js"></script>
 </body>
 </html>

@@ -93,14 +93,15 @@ app.post('/logout', (req, res) => {
 });
 
 // Create a new relief and recovery center
-app.post('/api/centers', isAuthenticated, async (req, res) => {
-    const { location, monday_open, monday_close, tuesday_open, tuesday_close, wednesday_open, wednesday_close, thursday_open, thursday_close, friday_open, friday_close, saturday_open, saturday_close, sunday_open, sunday_close, services_available, website, center_status, added_by, updated_by } = req.body;
+app.post('/api/centers', async (req, res) => {
+    console.log("posting centers ", req.body);
+    const { category, WarningLevel, center_status, location, monday_open, monday_close, tuesday_open, tuesday_close, wednesday_open, wednesday_close, thursday_open, thursday_close, friday_open, friday_close, saturday_open, saturday_close, sunday_open, sunday_close, services_available, website, added_by, updated_by } = req.body;
 
     try {
         const result = await pool.query(
-            'INSERT INTO recovery_centers (location, monday_open, monday_close, tuesday_open, tuesday_close, wednesday_open, wednesday_close, thursday_open, thursday_close, friday_open, friday_close, saturday_open, saturday_close, sunday_open, sunday_close, services_available, website, center_status, last_updated, added_by, updated_by, deleted, disabled) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, now(), $19, $20, FALSE, FALSE) RETURNING *',
-            [location, monday_open, monday_close, tuesday_open, tuesday_close, wednesday_open, wednesday_close, thursday_open, thursday_close, friday_open, friday_close, saturday_open, saturday_close, sunday_open, sunday_close, services_available, website, center_status, added_by, updated_by]
-        );
+        'INSERT INTO recovery_centers (category, warning_level, center_status, monday_open, monday_close, tuesday_open, tuesday_close, wednesday_open, wednesday_close, thursday_open, thursday_close, friday_open, friday_close, saturday_open, saturday_close, sunday_open, sunday_close, location, services_available, website, added_by, updated_by, deleted, last_updated) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, FALSE, now()) RETURNING *',
+            [category, WarningLevel, center_status, monday_open, monday_close, tuesday_open, tuesday_close, wednesday_open, wednesday_close, thursday_open, thursday_close, friday_open, friday_close, saturday_open, saturday_close, sunday_open, sunday_close, location, services_available, website, added_by, updated_by]
+    );
 
         res.status(201).json("successful");
     } catch (err) {
@@ -127,7 +128,6 @@ app.get('/api/centers', async (req, res) => {
                 added_by: center.added_by,
                 updated_by: center.updated_by,
                 deleted: center.deleted,
-                disabled: center.disabled,
                 opens: formatOpeningHours(center),
                 category: "Recovery Centre",
                 WarningLevel: "Public Notice",
@@ -144,8 +144,9 @@ app.get('/api/centers', async (req, res) => {
 
 // Helper function to get geolocation from address
 async function getGeolocation(address) {
+    console.error("converting address ", address);
     try {
-        const apiKey = 'AIzaSyAUsXRUXnavthEq2krHHUjQU2P_KNswKbw'; // Replace with your actual Google API key
+        const apiKey = ''; // Replace with your actual Google API key
         const response = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${apiKey}`);
         const data = await response.json();
 

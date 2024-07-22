@@ -45,7 +45,9 @@ document.getElementById('communityForm').addEventListener('submit', async functi
     event.preventDefault();
 
     const formData = {
-        location: document.getElementById('location').value,
+        category: document.getElementById('category').value,
+        WarningLevel: document.getElementById('WarningLevel').value,
+        center_status: document.getElementById('center_status').value,
         monday_open: document.getElementById('monday_open').value !== '' ? document.getElementById('monday_open').value: null,
         monday_close: document.getElementById('monday_close').value !== '' ? document.getElementById('monday_close').value: null,
         tuesday_open: document.getElementById('tuesday_open').value !== '' ? document.getElementById('tuesday_open').value: null,
@@ -60,9 +62,9 @@ document.getElementById('communityForm').addEventListener('submit', async functi
         saturday_close: document.getElementById('saturday_close').value !== '' ? document.getElementById('saturday_close').value: null,
         sunday_open: document.getElementById('sunday_open').value !== '' ? document.getElementById('sunday_open').value: null,
         sunday_close: document.getElementById('sunday_close').value !== '' ? document.getElementById('sunday_close').value: null,
+        location: document.getElementById('location').value,
         services_available: document.getElementById('services_available').value.split(',').map(item => item.trim()),
         website: document.getElementById('website').value,
-        center_status: document.getElementById('center_status').value,
         added_by: document.getElementById('added_by').value,
         updated_by: document.getElementById('updated_by').value
     };
@@ -86,7 +88,6 @@ document.getElementById('communityForm').addEventListener('submit', async functi
             alert('Error updating community center.');
         }
     } else {
-        console.log("test is test");
         console.log("form data is ::", formData);
         const response = await fetch('/api/centers', {
             method: 'POST',
@@ -98,6 +99,7 @@ document.getElementById('communityForm').addEventListener('submit', async functi
 
         if (response.ok) {
             alert('Community center added successfully!');
+            document.getElementById('CommunityForm').reset();
         } else {
             alert('Error adding community center.');
         }
@@ -153,7 +155,12 @@ async function editCenter(id) {
     const response = await fetch(`/api/centers/${id}`);
     const center = await response.json();
 
+    console.log("edit center data is ", center);
+
     document.getElementById('location').value = center.location;
+    document.getElementById('category').value = center.category;
+    document.getElementById('center_status').value = center.center_status;
+    document.getElementById('WarningLevel').value = center.warning_level;
     document.getElementById('monday_open').value = center.monday_open;
     document.getElementById('monday_close').value = center.monday_close;
     document.getElementById('tuesday_open').value = center.tuesday_open;
@@ -170,7 +177,6 @@ async function editCenter(id) {
     document.getElementById('sunday_close').value = center.sunday_close;
     document.getElementById('services_available').value = center.services_available.join(', ');
     document.getElementById('website').value = center.website;
-    document.getElementById('center_status').value = center.center_status;
     document.getElementById('added_by').value = center.added_by;
     document.getElementById('updated_by').value = center.updated_by;
 
@@ -194,7 +200,7 @@ async function deleteCenter(id) {
 
 async function convertAddressToGeocode(address) {
     console.log("converting address to geocode");
-    const apiKey = 'AIzaSyAUsXRUXnavthEq2krHHUjQU2P_KNswKbw'; // Replace with your actual API key
+    const apiKey = 'AIzaSyBzOoy52QJa0Offg7IvXQB9TBRsPCvCQYA'; // Replace with your actual API key
     const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${apiKey}`;
 
     try {
