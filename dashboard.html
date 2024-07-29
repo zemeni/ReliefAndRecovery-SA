@@ -130,11 +130,12 @@
     </table>
 </div>
 
-
+<script src="/config.js"></script>
 <script>
     let autocomplete;
 
     function initMap() {
+        const apiKey = window.config.googleApiKey;
         autocomplete = new google.maps.places.Autocomplete(
             document.getElementById("location"),
             {
@@ -160,7 +161,7 @@
 </script>
 
 <script async defer
-        src="https://maps.googleapis.com/maps/api/js?key=&libraries=places&callback=initMap"></script>
+        src="https://maps.googleapis.com/maps/api/js?key=" + window.config.googleApiKey + "&libraries=places&callback=initMap"></script>
 <script src="/js/dashboard.js"></script>
 </body>
 </html>

@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const bodyParser = require('body-parser');
 const { Pool } = require('pg');
@@ -18,11 +19,14 @@ app.use(session({
 }));
 
 const pool = new Pool({
-    user: 'postgres',
-    host: 'localhost',
-    database: 'reliefandrecovery',
-    password: 'postgres',
+    user: process.env.DATABASE_USER,
+    host: process.env.DATABASE_HOST,
+    database: process.env.DATABASE,
+    password: process.env.DB_PASSWORD,
     port: 5432,
+    ssl: {
+        rejectUnauthorized: false
+    }
 });
 
 function isAuthenticated(req, res, next) {
@@ -50,10 +54,12 @@ app.get('/dashboard', isAuthenticated, (req, res) => {
 
 // Login route
 app.post('/login', async (req, res) => {
+    console.log("attempting login ", req.body);
     const { username, password } = req.body;
 
     try {
         const result = await pool.query('SELECT * FROM users WHERE email = $1 and active = true', [username]);
+
         if (result.rows.length > 0) {
             const user = result.rows[0];
             if (await bcrypt.compare(password, user.password)) {
@@ -146,7 +152,7 @@ app.get('/api/centers', async (req, res) => {
 async function getGeolocation(address) {
     console.error("converting address ", address);
     try {
-        const apiKey = ''; // Replace with your actual Google API key
+        const apiKey = process.env.GOOGLE_API_KEY; // Replace with your actual Google API key
         const response = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${apiKey}`);
         const data = await response.json();
 
@@ -242,6 +248,26 @@ app.delete('/api/centers/:id', async (req, res) => {
     }
 });
 
-app.listen(port, () => {
-    console.log(`Server running at http://localhost:${port}/`);
-});
+app.use('/config.js', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'config.json'));
+})
+
+// Function to check database connectivity
+async function checkDatabaseConnectivity() {
+    try {
+        await pool.query('SELECT NOW()'); // Simple query to test connection
+        console.log('Database connection successful!');
+    } catch (err) {
+        console.error('Database connection failed:', err.message);
+        process.exit(1); // Exit the application if database connection fails
+    }
+}
+
+// Call the function when the app starts
+checkDatabaseConnectivity()
+    .then(() => {
+        // Start your server if database connection is successful
+        app.listen(port, () => {
+            console.log(`Server running at http://localhost:${port}/`);
+        });
+    });
