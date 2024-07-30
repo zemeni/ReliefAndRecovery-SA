@@ -1,56 +1,81 @@
 body {
     font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    overflow: hidden;
 }
 
-.profile-section {
-    position: relative;
+.top-nav {
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    background-color: #f3f3f3;
+    padding: 10px 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    position: fixed;
+    width: 100%;
+    top: 0;
+    left: 0;
+}
+
+.logo {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.nav-links a {
+    text-decoration: none;
+    color: #333;
+    font-size: 18px;
+    padding: 10px;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+.nav-links a:hover {
+    background-color: #54a357;
+    color: #fff;
+}
+
+.nav-user-email {
+    text-align: center;
+    flex: 1;
+    font-size: 18px;
+}
+
+.logout-button {
+    background-color: #54a357;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.logout-button:hover {
+    background-color: #44a04b;
+}
+
+.main-content {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
     display: flex;
     flex-direction: column;
     align-items: center;
-}
-
-.profile-icon {
-    font-size: 2rem;
-    cursor: pointer;
-}
-
-#userEmail {
-    margin-left: 10px;
-    font-size: 1rem;
-}
-
-.logout-menu {
-    display: none;
-    position: absolute;
-    top: 100%;
-    right: 0;
-    background-color: #fff;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    z-index: 1000;
-}
-
-.logout-menu button {
-    padding: 10px;
-    background-color: rgb(35, 184, 42);
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    width: 100%;
-    text-align: center;
-}
-
-.logout-menu button:hover {
-    background-color: #2b9e2b;
-}
-
-.container {
-    width: 50%;
-    margin: 0 auto;
-    padding: 20px;
-    border: 2px solid green;
+    margin-top: 60px; /* Space for fixed navbar */
 }
 
 h1, h2 {
@@ -62,7 +87,11 @@ form {
     margin-bottom: 20px;
     padding: 20px;
     box-sizing: border-box;
-    max-width: 100%;
+    max-width: 600px;
+    width: 100%;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 10px;
 }
 
 label {
@@ -73,26 +102,26 @@ label {
 form select, form input {
     display: block;
     width: 100%;
+    max-width: 100%;
     padding: 10px;
     margin-top: 5px;
     font-size: 16px;
     border: 1px solid #68986a;
-    box-sizing: border-box; /* Ensures padding and border are included in the element's total width and height */
+    box-sizing: border-box;
     border-radius: 10px;
 }
 
 input[type="time"] {
-    width: 80%;
+    width: calc(100% - 22px); /* Adjust to account for padding and border */
 }
 
 .button-container {
     display: flex;
-    justify-content: center;
-    margin-top: 10px;
+    justify-content: flex-start;
+    margin-top: 20px;
 }
 
 .button-container button {
-    width: 50%;
     padding: 10px;
     text-align: center;
     background-color: rgb(35, 184, 42);
@@ -144,97 +173,110 @@ button {
     margin-top: 10px;
 }
 
-
-/* Container to ensure table can scroll horizontally */
-.table-container {
-    overflow-x: auto; /* Enables horizontal scrolling */
-    width: 100%; /* Adjusts the container width */
-    position: relative; /* Allows for positioning elements within it */
+.button3 {
+    background-color: red;
+    padding: 10px;
+    color: white;
 }
 
-/* Ensure table layout adjusts based on content */
+.table-container {
+    overflow-x: auto;
+    width: 100%;
+    position: relative;
+}
+
 #communityTable {
-    border-collapse: collapse; /* Ensures borders are not double */
-    width: 100%; /* Ensures table uses full container width */
-    table-layout: auto; /* Adjusts the table layout based on content */
+    border-collapse: collapse;
+    width: 100%;
+    table-layout: auto;
 }
 
 #communityTable a {
-    color: #007bff; /* Blue color for links */
-    text-decoration: none; /* Removes underline from links */
+    color: #007bff;
+    text-decoration: none;
 }
 
 #communityTable a:hover {
-    text-decoration: underline; /* Adds underline on hover */
+    text-decoration: underline;
 }
 
-/* Style for table headers and cells */
 #communityTable th, #communityTable td {
-    border: 1px solid #58955b; /* Adds borders to cells */
-    padding: 10px; /* Adds padding inside cells */
-    text-align: left; /* Aligns text to the left */
-    white-space: nowrap; /* Prevents text from wrapping */
+    border: 1px solid #58955b;
+    padding: 10px;
+    text-align: left;
+    white-space: nowrap;
 }
 
-/* Style for table headers */
 #communityTable th {
-    background-color: #f3f0f0; /* Header background color */
-    position: sticky; /* Keeps headers at the top during scroll */
-    top: 0; /* Ensures headers stay at the top */
-    z-index: 1; /* Ensures headers stay above other content */
+    background-color: #f3f0f0;
+    position: sticky;
+    top: 0;
+    z-index: 1;
 }
 
-/* Container for fixed table headers */
 .table-scroll-container {
-    overflow-x: auto; /* Enables horizontal scrolling */
-    overflow-y: hidden; /* Hides vertical scrolling */
-    width: 100%; /* Ensures the container spans full width */
-    position: relative; /* Ensures correct positioning of inner content */
+    /*overflow-x: auto;*/
+    /*overflow-y: hidden;*/
+    width: calc(100% - 20px);
+    position: relative;
+    margin-top: 20px;
 }
 
-/* Style for the scrollable table */
 .scrollable-table {
-    min-width: 1000px; /* Ensures table has a minimum width for scrolling */
+    min-width: 1000px;
 }
 
-/* Optional: Adds a background color to odd and even rows for better readability */
 #communityTable tr:nth-child(odd) {
-    background-color: #f9f9f9; /* Light background for odd rows */
+    background-color: #f9f9f9;
 }
 
 #communityTable tr:nth-child(even) {
-    background-color: #fff; /* White background for even rows */
+    background-color: #fff;
 }
 
-/* Styles for the dynamic content within cells */
 #communityTable td .open-time {
-    padding: 5px 10px; /* Adds padding inside each time slot */
-    margin-bottom: 5px; /* Adds spacing between entries */
-    border-radius: 4px; /* Rounds the corners */
+    padding: 5px 10px;
+    margin-bottom: 5px;
+    border-radius: 4px;
 }
 
+/* Responsive design */
+@media (max-width: 768px) {
+    .top-nav {
+        flex-direction: column;
+        align-items: flex-start;
+    }
 
+    .nav-links {
+        flex-direction: column;
+        width: 100%;
+    }
 
-/* Existing styles... */
+    .nav-links a {
+        margin-right: 0;
+        margin-bottom: 10px;
+        width: 100%;
+        text-align: center;
+    }
 
-.profile-section {
-    position: fixed; /* Fixes the profile section to the top right */
-    top: 20px; /* Adjusts the vertical position from the top */
-    right: 20px; /* Adjusts the horizontal position from the right */
-    text-align: center; /* Centers the text and icon */
-    z-index: 1000; /* Ensures it appears above other content */
+    .nav-user-email {
+        margin: 10px 0;
+    }
+
+    .main-content {
+        padding: 10px;
+    }
+
+    form select, form input {
+        width: 100%;
+    }
+
+    .button-container button {
+        width: 100%;
+    }
+
+    .table-scroll-container {
+        width: 100%;
+        margin-left: 0;
+    }
 }
-
-.profile-icon {
-    font-size: 50px; /* Adjust the size of the profile icon */
-    color: #333; /* Adjust the color as needed */
-}
-
-.profile-email {
-    margin-top: 5px; /* Adds spacing between the icon and email */
-    font-size: 14px; /* Adjust the font size */
-    color: #333; /* Adjust the color as needed */
-}
-
-
-

@@ -1,13 +1,42 @@
 let editingId = null;
 
-document.addEventListener('DOMContentLoaded', () => {
-    const isAdmin = sessionStorage.getItem('isAdmin') === 'true';
-    const usersLink = document.getElementById('usersLink');
+console.log("inside script.js");
 
-    // Show the users link if the user is an admin
-    if (isAdmin) {
-        usersLink.style.display = 'block';
+document.addEventListener('DOMContentLoaded', () => {
+    const profileIcon = document.querySelector('.profile-icon');
+    const logoutMenu = document.getElementById('logoutMenu');
+    const logoutButton = document.getElementById('logoutButton');
+
+    const email = sessionStorage.getItem("userEmail");
+    if(email) {
+        document.getElementById("userEmail").textContent = email;
+    } else {
+        document.getElementById("userEmail").textContent = `something went wrong`;
     }
+
+    profileIcon.addEventListener('click', () => {
+        const isMenuVisible = logoutMenu.style.display === 'block';
+        logoutMenu.style.display = isMenuVisible ? 'none' : 'block';
+    });
+
+    // Hide logout menu if clicked outside
+    document.addEventListener('click', (event) => {
+        if (!profileIcon.contains(event.target) && !logoutMenu.contains(event.target)) {
+            logoutMenu.style.display = 'none';
+        }
+    });
+
+    // Handle logout button click
+    logoutButton.addEventListener('click', async () => {
+        // Send request to logout endpoint
+        await fetch('/logout', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        });
+
+        // Redirect to login page
+        window.location.href = '/login';
+    });
 });
 
 
@@ -59,6 +88,7 @@ document.getElementById('communityForm').addEventListener('submit', async functi
             alert('Error updating community center.');
         }
     } else {
+        console.log("form data is ::", formData);
         const response = await fetch('/api/centers', {
             method: 'POST',
             headers: {
@@ -81,6 +111,8 @@ document.getElementById('communityForm').addEventListener('submit', async functi
 async function loadCommunityCenters() {
     const response = await fetch('/api/centers');
     const data = await response.json();
+
+    console.log("I'm getting following data::", data);
 
     const tbody = document.getElementById('communityTable').querySelector('tbody');
     tbody.innerHTML = '';
@@ -105,6 +137,8 @@ async function loadCommunityCenters() {
             <td>${center.updated}</td>
             <td>${center.added_by}</td>
             <td>${center.updated_by}</td>
+            <td>${center.deleted}</td>
+            <td>${center.disabled}</td>
             <td>
                 <div class="buttons">
                     <button class="button1" onclick="editCenter(${center.id})">Edit</button>
@@ -120,6 +154,8 @@ async function loadCommunityCenters() {
 async function editCenter(id) {
     const response = await fetch(`/api/centers/${id}`);
     const center = await response.json();
+
+    console.log("edit center data is ", center);
 
     document.getElementById('location').value = center.location;
     document.getElementById('category').value = center.category;
@@ -163,7 +199,8 @@ async function deleteCenter(id) {
 }
 
 async function convertAddressToGeocode(address) {
-    const apiKey = 'AIzaSyBc7eJJD7m6uhsh4wIUREQDVcIThEOog80'; // Replace with your actual API key
+    console.log("converting address to geocode");
+    const apiKey = 'AIzaSyBzOoy52QJa0Offg7IvXQB9TBRsPCvCQYA'; // Replace with your actual API key
     const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${apiKey}`;
 
     try {
@@ -172,39 +209,37 @@ async function convertAddressToGeocode(address) {
 
         if(data.status === 'OK') {
             const result = data.results[0].geometry.location;
+            console.log("geocode is ::", result);
         }else {
             throw new Error('Error converting address to Geocode')
         }
     }catch (error) {
+        console.error('Error fetching geocode:', error);
         throw error;
     }
 }
 
 document.getElementById('logoutButton').addEventListener('click', () => {
+    console.log("logout button clicked!");
 
-    const confirm = window.confirm('Are you sure you want to logout?');
-
-    if(confirm) {
-        fetch('/logout', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
+    fetch('/logout', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                window.location.href = '/';
+            } else {
+                alert('Logout failed');
             }
         })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    window.location.href = '/';
-                } else {
-                    alert('Logout failed');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
-    }
+        .catch(error => {
+            console.error('Error:', error);
+        });
 });
-
 
 
 // Load community centers on page load

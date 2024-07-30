@@ -16,6 +16,7 @@ document.getElementById('loginForm').addEventListener('submit', async (event) =>
     if (result.success) {
         //store email in session storage
         sessionStorage.setItem("userEmail", result.email);
+        sessionStorage.setItem("isAdmin", result.isAdmin);
         // Redirect to the desired page after successful login
         window.location.href = '/dashboard';
     } else {

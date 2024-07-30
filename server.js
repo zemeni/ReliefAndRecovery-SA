@@ -5,7 +5,6 @@ const { Pool } = require('pg');
 const path = require('path');
 const bcrypt = require('bcrypt'); // Make sure to install bcrypt
 const session = require('express-session');
-const e = require("express"); // Make sure to install express-session
 const app = express();
 const port = 3000;
 
@@ -30,7 +29,6 @@ const pool = new Pool({
 });
 
 function isAuthenticated(req, res, next) {
-    console.log("checking authentication");
     if (req.session.userId) {
         next();
     } else {
@@ -47,14 +45,20 @@ app.get('/signup', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'signup.html'));
 });
 
-app.get('/dashboard', isAuthenticated, (req, res) => {
-    console.log("session is ", req.session.userId);
+app.get('/dashboard*', isAuthenticated, (req, res) => {
     res.sendFile(path.join(__dirname, 'dashboard.html'));
+});
+
+app.get('/users*', isAuthenticated, (req, res) => {
+    if(req.session.isAdmin) {
+        res.sendFile(path.join(__dirname, 'users.html'));
+    }else {
+        res.sendFile(path.join(__dirname, 'public', 'error.html'));
+    }
 });
 
 // Login route
 app.post('/login', async (req, res) => {
-    console.log("attempting login ", req.body);
     const { username, password } = req.body;
 
     try {
@@ -64,7 +68,8 @@ app.post('/login', async (req, res) => {
             const user = result.rows[0];
             if (await bcrypt.compare(password, user.password)) {
                 req.session.userId = user.id;
-                res.json({ success: true, email: user.email });
+                req.session.isAdmin = user.isadmin;
+                res.json({ success: true, email: user.email, isAdmin: user.isadmin });
             } else {
                 res.json({ success: false, message: 'Invalid password' });
             }
@@ -100,13 +105,13 @@ app.post('/logout', (req, res) => {
 
 // Create a new relief and recovery center
 app.post('/api/centers', async (req, res) => {
-    console.log("posting centers ", req.body);
     const { category, WarningLevel, center_status, location, monday_open, monday_close, tuesday_open, tuesday_close, wednesday_open, wednesday_close, thursday_open, thursday_close, friday_open, friday_close, saturday_open, saturday_close, sunday_open, sunday_close, services_available, website, added_by, updated_by } = req.body;
 
+    const {lat, lng} = await getGeolocation(location);
     try {
         const result = await pool.query(
-        'INSERT INTO recovery_centers (category, warning_level, center_status, monday_open, monday_close, tuesday_open, tuesday_close, wednesday_open, wednesday_close, thursday_open, thursday_close, friday_open, friday_close, saturday_open, saturday_close, sunday_open, sunday_close, location, services_available, website, added_by, updated_by, deleted, last_updated) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, FALSE, now()) RETURNING *',
-            [category, WarningLevel, center_status, monday_open, monday_close, tuesday_open, tuesday_close, wednesday_open, wednesday_close, thursday_open, thursday_close, friday_open, friday_close, saturday_open, saturday_close, sunday_open, sunday_close, location, services_available, website, added_by, updated_by]
+        'INSERT INTO recovery_centers (category, warning_level, center_status, monday_open, monday_close, tuesday_open, tuesday_close, wednesday_open, wednesday_close, thursday_open, thursday_close, friday_open, friday_close, saturday_open, saturday_close, sunday_open, sunday_close, location, services_available, website, added_by, updated_by, deleted, last_updated, latitude, longitude) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, FALSE, now(), $23, $24) RETURNING *',
+            [category, WarningLevel, center_status, monday_open, monday_close, tuesday_open, tuesday_close, wednesday_open, wednesday_close, thursday_open, thursday_close, friday_open, friday_close, saturday_open, saturday_close, sunday_open, sunday_close, location, services_available, website, added_by, updated_by, lat, lng]
     );
 
         res.status(201).json("successful");
@@ -116,11 +121,20 @@ app.post('/api/centers', async (req, res) => {
     }
 });
 
+app.get('/api/users', isAuthenticated, async (req, res) => {
+    try {
+        const result = await pool.query('SELECT * from users');
+        res.json(result.rows);
+    }catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Error retrieving users' });
+    }
+})
+
 // Retrieve all centers
 app.get('/api/centers', async (req, res) => {
-    console.log("inside api/centers");
     try {
-        const result = await pool.query('SELECT * FROM recovery_centers');
+        const result = await pool.query('SELECT * FROM recovery_centers where deleted = false ');
 
         const transformedResult = await Promise.all(result.rows.map(async center => {
             const geolocation = await getGeolocation(center.location);
@@ -150,7 +164,6 @@ app.get('/api/centers', async (req, res) => {
 
 // Helper function to get geolocation from address
 async function getGeolocation(address) {
-    console.error("converting address ", address);
     try {
         const apiKey = process.env.GOOGLE_API_KEY; // Replace with your actual Google API key
         const response = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${apiKey}`);
@@ -248,9 +261,54 @@ app.delete('/api/centers/:id', async (req, res) => {
     }
 });
 
-app.use('/config.js', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'config.json'));
-})
+
+// Update user active status
+app.patch('/api/users/:id/active', isAuthenticated, async (req, res) => {
+    const { id } = req.params;
+    const { active } = req.body;
+
+
+    try {
+        const result = await pool.query(
+            'UPDATE users SET active = $1 WHERE id = $2 RETURNING *',
+            [active, id]
+        );
+
+        if (result.rows.length > 0) {
+            res.status(200).json(result.rows[0]);
+        } else {
+            res.status(404).json({ error: 'User not found' });
+        }
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Error updating user status' });
+    }
+});
+
+// Update user admin status
+app.patch('/api/users/:id/admin', isAuthenticated, async (req, res) => {
+    const { id } = req.params;
+    const { isadmin } = req.body;
+
+
+    try {
+        const result = await pool.query(
+            'UPDATE users SET isadmin = $1 WHERE id = $2 RETURNING *',
+            [isadmin, id]
+        );
+
+        if (result.rows.length > 0) {
+            res.status(200).json(result.rows[0]);
+        } else {
+            res.status(404).json({ error: 'User not found' });
+        }
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Error updating user admin status' });
+    }
+});
+
+
 
 // Function to check database connectivity
 async function checkDatabaseConnectivity() {
@@ -263,7 +321,7 @@ async function checkDatabaseConnectivity() {
     }
 }
 
-// Call the function when the app starts
+
 checkDatabaseConnectivity()
     .then(() => {
         // Start your server if database connection is successful
