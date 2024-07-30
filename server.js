@@ -62,7 +62,7 @@ app.post('/login', async (req, res) => {
     const { username, password } = req.body;
 
     try {
-        const result = await pool.query('SELECT * FROM users WHERE email = $1 and active = true', [username]);
+        const result = await pool.query('SELECT * FROM users WHERE email = $1 and active = true', [username.toLowerCase()]);
 
         if (result.rows.length > 0) {
             const user = result.rows[0];
@@ -83,14 +83,15 @@ app.post('/login', async (req, res) => {
 
 // Signup route
 app.post('/signup', async (req, res) => {
-    const { email, password } = req.body;
-    console.log("signup details ",  email, password);
+    const { email , password } = req.body;
+    const lowerCaseEmail = email.toLowerCase();
+
     const hashedPassword = await bcrypt.hash(password, 10);
 
     try {
         const result = await pool.query(
             'INSERT INTO users (email, password, active) VALUES ($1, $2, true) RETURNING id',
-            [email, hashedPassword]
+            [lowerCaseEmail, hashedPassword]
         );
         res.json({ success: true });
     } catch (err) {
