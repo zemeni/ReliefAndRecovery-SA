@@ -40,8 +40,6 @@ document.getElementById('communityForm').addEventListener('submit', async functi
         updated_by: document.getElementById('updated_by').value
     };
 
-    convertAddressToGeocode(formData.location);
-
     if (editingId) {
         const response = await fetch(`/api/centers/${editingId}`, {
             method: 'PUT',
@@ -70,6 +68,7 @@ document.getElementById('communityForm').addEventListener('submit', async functi
         if (response.ok) {
             alert('Community center added successfully!');
             document.getElementById('CommunityForm').reset();
+            loadCommunityCenters();
         } else {
             alert('Error adding community center.');
         }
@@ -159,24 +158,6 @@ async function deleteCenter(id) {
         } else {
             alert('Error deleting community center.');
         }
-    }
-}
-
-async function convertAddressToGeocode(address) {
-    const apiKey = 'AIzaSyBc7eJJD7m6uhsh4wIUREQDVcIThEOog80'; // Replace with your actual API key
-    const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${apiKey}`;
-
-    try {
-        const response = await fetch(url);
-        const data = await response.json();
-
-        if(data.status === 'OK') {
-            const result = data.results[0].geometry.location;
-        }else {
-            throw new Error('Error converting address to Geocode')
-        }
-    }catch (error) {
-        throw error;
     }
 }
 
