@@ -25,7 +25,9 @@ CREATE TABLE recovery_centers (
     sunday_open TIME WITHOUT TIME ZONE,
     sunday_close TIME WITHOUT TIME ZONE,
     category VARCHAR(250),
-    warning_level VARCHAR(100)
+    warning_level VARCHAR(100),
+    latitude DECIMAL(9,6),
+    longitude DECIMAL(9,6)
 );
 
 INSERT INTO recovery_centers (
@@ -66,8 +68,9 @@ CREATE TABLE users (
     id SERIAL PRIMARY KEY,
     email VARCHAR(255) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
-    active BOOLEAN DEFAULT true,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    active BOOLEAN DEFAULT false,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    isAdmin BOOLEAN DEFAULT false
 );
 
 -- password admin

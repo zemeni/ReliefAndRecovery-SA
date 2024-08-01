@@ -57,6 +57,11 @@ app.get('/users*', isAuthenticated, (req, res) => {
     }
 });
 
+// Endpoint to serve the API key
+app.get('/api/key', (req, res) => {
+    res.json({ key: process.env.GOOGLE_API_KEY });
+});
+
 // Login route
 app.post('/login', async (req, res) => {
     const { username, password } = req.body;
@@ -138,7 +143,6 @@ app.get('/api/centers', async (req, res) => {
         const result = await pool.query('SELECT * FROM recovery_centers where deleted = false ');
 
         const transformedResult = await Promise.all(result.rows.map(async center => {
-            const geolocation = await getGeolocation(center.location);
             return {
                 id: center.id,
                 areaDesc: center.location,
@@ -152,7 +156,10 @@ app.get('/api/centers', async (req, res) => {
                 opens: formatOpeningHours(center),
                 category: "Recovery Centre",
                 WarningLevel: "Public Notice",
-                geolocation: geolocation
+                geometry: {
+                    x: center.latitude,
+                    y: center.longitude
+                }
             };
         }));
 

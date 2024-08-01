@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Community Center Admin Portal</title>
+    <title>Relief And Recovery Centre</title>
     <link rel="stylesheet" href="/css/styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
 
 <div class="top-nav">
-    <div class="logo">Relief And Recovery Center</div>
+    <div class="logo">Relief And Recovery Centre</div>
     <div class="nav-links">
         <a href="dashboard.html">Dashboard</a>
         <a href="users.html" id="usersLink" style="display: none">Users</a>
@@ -21,10 +21,10 @@
 <div class="main-content">
     <h1>Admin Portal</h1>
     <form id="communityForm">
-        <label for="category">Choose Center:</label>
+        <label for="category">Choose Centre:</label>
         <select id="category" name="category" required>
-            <option class="select_option" value="Recovery Center">Recovery Center</option>
-            <option class="select_option" value="Relief Center">Relief Center</option>
+            <option class="select_option" value="Recovery Center">Recovery Centre</option>
+            <option class="select_option" value="Relief Center">Relief Centre</option>
         </select>
 
         <label for="WarningLevel">Warning Level:</label>
@@ -32,7 +32,7 @@
             <option class="select_option" value="Public Notice">Public Notice</option>
         </select>
 
-        <label for="center_status">Center Status:</label>
+        <label for="center_status">Centre Status:</label>
         <select id="center_status" name="center_status" required>
             <option class="select_option" value="Open">Open</option>
             <option class="select_option" value="Close">Close</option>
@@ -104,7 +104,7 @@
         </div>
     </form>
 
-    <h2>Active Relief And Recovery Centers</h2>
+    <h2>Active Relief And Recovery Centres</h2>
     <div class="table-scroll-container">
         <table id="communityTable" class="scrollable-table">
             <thead>
@@ -113,7 +113,7 @@
                 <th>Opens</th>
                 <th>Services Available</th>
                 <th>Website</th>
-                <th>Center Status</th>
+                <th>Centre Status</th>
                 <th>Last Updated</th>
                 <th>Added By</th>
                 <th>Updated By</th>
@@ -127,8 +127,20 @@
     </div>
 </div>
 
-<script src="/config.js"></script>
 <script>
+    async function loadGoogleMapsApi() {
+        try {
+            const response = await fetch('/api/key');
+            const data = await response.json();
+            const script = document.createElement('script');
+            script.src = `https://maps.googleapis.com/maps/api/js?key=${data.key}&libraries=places&callback=initMap`;
+            script.async = true;
+            script.defer = true;
+            document.head.appendChild(script);
+        } catch (error) {
+            console.error('Error loading Google Maps API:', error);
+        }
+    }
     let autocomplete;
 
     function initMap() {
@@ -152,10 +164,11 @@
             document.getElementById('services_available').focus();
         }
     }
+    window.onload = loadGoogleMapsApi;
 </script>
-
+<!--
 <script async defer
-        src="https://maps.googleapis.com/maps/api/js?key=&libraries=places&callback=initMap"></script>
+        src="https://maps.googleapis.com/maps/api/js?key=&libraries=places&callback=initMap"></script>-->
 <script src="/js/dashboard.js"></script>
 </body>
 </html>
