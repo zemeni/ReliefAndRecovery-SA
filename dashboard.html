@@ -10,10 +10,11 @@
 <body>
 
 <div class="top-nav">
-    <div class="logo">Relief And Recovery Centre</div>
+    <a href="dashboard.html"><img class="logo" src="alertsa-top-logo.png" alt="alert sa logo"></a>
+    <div class="title">Relief And Recovery Centre</div>
     <div class="nav-links">
-        <a href="dashboard.html">Dashboard</a>
-        <a href="users.html" id="usersLink" style="display: none">Users</a>
+        <a href="dashboard.html"  class="nav-links" style="color:white;">Dashboard</a>
+        <a href="users.html" id="usersLink" style="display: none; color: white" class="nav-links">Users</a>
         <button class="button3" id="logoutButton">Logout</button>
     </div>
 </div>
@@ -23,19 +24,14 @@
     <form id="communityForm">
         <label for="category">Choose Centre:</label>
         <select id="category" name="category" required>
-            <option class="select_option" value="Recovery Center">Recovery Centre</option>
-            <option class="select_option" value="Relief Center">Relief Centre</option>
+            <option class="select_option" value="Recovery Centre">Recovery Centre</option>
+            <option class="select_option" value="Relief Centre">Relief Centre</option>
+            <option class="select_option" value="Relief And Recovery Centre">Relief And Recovery Centre</option>
         </select>
 
         <label for="WarningLevel">Warning Level:</label>
         <select id="WarningLevel" name="WarningLevel" required>
             <option class="select_option" value="Public Notice">Public Notice</option>
-        </select>
-
-        <label for="center_status">Centre Status:</label>
-        <select id="center_status" name="center_status" required>
-            <option class="select_option" value="Open">Open</option>
-            <option class="select_option" value="Close">Close</option>
         </select>
 
         <table id="centers">
@@ -91,13 +87,13 @@
         <input type="text" id="services_available" name="services_available" required>
 
         <label for="website">Website:</label>
-        <input type="url" id="website" name="website">
+        <input type="url" id="website" name="website" placeholder="https://www.alert.sa.gov.au/">
 
         <label for="added_by">Added By:</label>
         <input type="text" id="added_by" name="added_by" required>
 
         <label for="updated_by">Updated By:</label>
-        <input type="text" id="updated_by" name="updated_by" required>
+        <input type="text" id="updated_by" name="updated_by" placeholder="optional">
 
         <div class="button-container">
             <button type="submit">Submit</button>
@@ -109,11 +105,11 @@
         <table id="communityTable" class="scrollable-table">
             <thead>
             <tr>
+                <th>Centre</th>
                 <th>Location</th>
                 <th>Opens</th>
                 <th>Services Available</th>
                 <th>Website</th>
-                <th>Centre Status</th>
                 <th>Last Updated</th>
                 <th>Added By</th>
                 <th>Updated By</th>
@@ -133,10 +129,10 @@
             const response = await fetch('/api/key');
             const data = await response.json();
             const script = document.createElement('script');
-            script.src = `https://maps.googleapis.com/maps/api/js?key=${data.key}&libraries=places&callback=initMap`;
+            script.src = `https://maps.googleapis.com/maps/api/js?key=${data.key}&libraries=places&callback=initMap&loading=async`;
             script.async = true;
             script.defer = true;
-            document.head.appendChild(script);
+            document.body.appendChild(script);
         } catch (error) {
             console.error('Error loading Google Maps API:', error);
         }
@@ -166,9 +162,9 @@
     }
     window.onload = loadGoogleMapsApi;
 </script>
-<!--
-<script async defer
-        src="https://maps.googleapis.com/maps/api/js?key=&libraries=places&callback=initMap"></script>-->
+
 <script src="/js/dashboard.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment-timezone/0.5.38/moment-timezone-with-data.min.js"></script>
 </body>
 </html>

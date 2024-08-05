@@ -8,6 +8,9 @@ const session = require('express-session');
 const app = express();
 const port = 3000;
 
+const moment = require('moment');
+const momentTimezone = require('moment-timezone');
+
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(session({
@@ -58,7 +61,7 @@ app.get('/users*', isAuthenticated, (req, res) => {
 });
 
 // Endpoint to serve the API key
-app.get('/api/key', (req, res) => {
+app.get('/api/key', isAuthenticated, (req, res) => {
     res.json({ key: process.env.GOOGLE_API_KEY });
 });
 
@@ -111,13 +114,13 @@ app.post('/logout', (req, res) => {
 
 // Create a new relief and recovery center
 app.post('/api/centers', async (req, res) => {
-    const { category, WarningLevel, center_status, location, monday_open, monday_close, tuesday_open, tuesday_close, wednesday_open, wednesday_close, thursday_open, thursday_close, friday_open, friday_close, saturday_open, saturday_close, sunday_open, sunday_close, services_available, website, added_by, updated_by } = req.body;
+    const { category, WarningLevel, location, monday_open, monday_close, tuesday_open, tuesday_close, wednesday_open, wednesday_close, thursday_open, thursday_close, friday_open, friday_close, saturday_open, saturday_close, sunday_open, sunday_close, services_available, website, added_by, updated_by } = req.body;
 
     const {lat, lng} = await getGeolocation(location);
     try {
         const result = await pool.query(
-        'INSERT INTO recovery_centers (category, warning_level, center_status, monday_open, monday_close, tuesday_open, tuesday_close, wednesday_open, wednesday_close, thursday_open, thursday_close, friday_open, friday_close, saturday_open, saturday_close, sunday_open, sunday_close, location, services_available, website, added_by, updated_by, deleted, last_updated, latitude, longitude) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, FALSE, now(), $23, $24) RETURNING *',
-            [category, WarningLevel, center_status, monday_open, monday_close, tuesday_open, tuesday_close, wednesday_open, wednesday_close, thursday_open, thursday_close, friday_open, friday_close, saturday_open, saturday_close, sunday_open, sunday_close, location, services_available, website, added_by, updated_by, lat, lng]
+        'INSERT INTO recovery_centers (category, warning_level, monday_open, monday_close, tuesday_open, tuesday_close, wednesday_open, wednesday_close, thursday_open, thursday_close, friday_open, friday_close, saturday_open, saturday_close, sunday_open, sunday_close, location, services_available, website, added_by, updated_by, deleted, last_updated, latitude, longitude) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, FALSE, now(), $22, $23) RETURNING *',
+            [category, WarningLevel, monday_open, monday_close, tuesday_open, tuesday_close, wednesday_open, wednesday_close, thursday_open, thursday_close, friday_open, friday_close, saturday_open, saturday_close, sunday_open, sunday_close, location, services_available, website, added_by, updated_by, lat, lng]
     );
 
         res.status(201).json("successful");
@@ -143,19 +146,21 @@ app.get('/api/centers', async (req, res) => {
         const result = await pool.query('SELECT * FROM recovery_centers where deleted = false ');
 
         const transformedResult = await Promise.all(result.rows.map(async center => {
+
+            // Convert last_updated to Adelaide time
+            const adelaideTime = moment.utc(center.last_updated).tz('Australia/Adelaide').format('YYYY-MM-DD hh:mm:ss A');
             return {
                 id: center.id,
                 areaDesc: center.location,
                 services: center.services_available,
                 web: center.website,
-                center_status: center.center_status,
-                updated: center.last_updated,
+                updated: adelaideTime,
                 added_by: center.added_by,
                 updated_by: center.updated_by,
                 deleted: center.deleted,
                 opens: formatOpeningHours(center),
-                category: "Recovery Centre",
-                WarningLevel: "Public Notice",
+                category: center.category,
+                WarningLevel: center.WarningLevel,
                 geometry: {
                     x: center.latitude,
                     y: center.longitude
@@ -237,12 +242,12 @@ app.get('/api/centers/:id', async (req, res) => {
 // Update a  center
 app.put('/api/centers/:id', async (req, res) => {
     const { id } = req.params;
-    const { location, monday_open, monday_close, tuesday_open, tuesday_close, wednesday_open, wednesday_close, thursday_open, thursday_close, friday_open, friday_close, saturday_open, saturday_close, sunday_open, sunday_close, services_available, website, center_status, added_by, updated_by } = req.body;
+    const { location, monday_open, monday_close, tuesday_open, tuesday_close, wednesday_open, wednesday_close, thursday_open, thursday_close, friday_open, friday_close, saturday_open, saturday_close, sunday_open, sunday_close, services_available, website, added_by, updated_by } = req.body;
 
     try {
         const result = await pool.query(
-            'UPDATE recovery_centers SET location = $1, monday_open = $2, monday_close = $3, tuesday_open = $4, tuesday_close = $5, wednesday_open = $6, wednesday_close = $7, thursday_open = $8, thursday_close = $9, friday_open = $10, friday_close = $11, saturday_open = $12, saturday_close = $13, sunday_open = $14, sunday_close = $15, services_available = $16, website = $17, center_status = $18, last_updated = now(), added_by = $19, updated_by = $20 WHERE id = $21 RETURNING *',
-            [location, monday_open, monday_close, tuesday_open, tuesday_close, wednesday_open, wednesday_close, thursday_open, thursday_close, friday_open, friday_close, saturday_open, saturday_close, sunday_open, sunday_close, services_available, website, center_status, added_by, updated_by, id]
+            'UPDATE recovery_centers SET location = $1, monday_open = $2, monday_close = $3, tuesday_open = $4, tuesday_close = $5, wednesday_open = $6, wednesday_close = $7, thursday_open = $8, thursday_close = $9, friday_open = $10, friday_close = $11, saturday_open = $12, saturday_close = $13, sunday_open = $14, sunday_close = $15, services_available = $16, website = $17, last_updated = now(), added_by = $18, updated_by = $19 WHERE id = $20 RETURNING *',
+            [location, monday_open, monday_close, tuesday_open, tuesday_close, wednesday_open, wednesday_close, thursday_open, thursday_close, friday_open, friday_close, saturday_open, saturday_close, sunday_open, sunday_close, services_available, website, added_by, updated_by, id]
         );
 
         if (result.rows.length > 0) {

@@ -18,7 +18,7 @@ document.getElementById('communityForm').addEventListener('submit', async functi
     const formData = {
         category: document.getElementById('category').value,
         WarningLevel: document.getElementById('WarningLevel').value,
-        center_status: document.getElementById('center_status').value,
+        // center_status: document.getElementById('center_status').value,
         monday_open: document.getElementById('monday_open').value !== '' ? document.getElementById('monday_open').value: null,
         monday_close: document.getElementById('monday_close').value !== '' ? document.getElementById('monday_close').value: null,
         tuesday_open: document.getElementById('tuesday_open').value !== '' ? document.getElementById('tuesday_open').value: null,
@@ -50,11 +50,11 @@ document.getElementById('communityForm').addEventListener('submit', async functi
         });
 
         if (response.ok) {
-            alert('Community center updated successfully!');
+            alert('Community centre updated successfully!');
             editingId = null;
             document.getElementById('communityForm').reset();
         } else {
-            alert('Error updating community center.');
+            alert('Error updating community centre.');
         }
     } else {
         const response = await fetch('/api/centers', {
@@ -66,11 +66,10 @@ document.getElementById('communityForm').addEventListener('submit', async functi
         });
 
         if (response.ok) {
-            alert('Community center added successfully!');
-            document.getElementById('CommunityForm').reset();
-            loadCommunityCenters();
+            alert('Community centre added successfully!');
+            document.getElementById('communityForm').reset();
         } else {
-            alert('Error adding community center.');
+            alert('Error adding community centre.');
         }
     }
 
@@ -78,6 +77,7 @@ document.getElementById('communityForm').addEventListener('submit', async functi
 });
 
 async function loadCommunityCenters() {
+    console.log("loading community centres");
     const response = await fetch('/api/centers');
     const data = await response.json();
 
@@ -94,13 +94,11 @@ async function loadCommunityCenters() {
         const encodedAddress = encodeURIComponent(center.areaDesc);
 
         row.innerHTML = `
-<!--            <td>${center.id}</td>-->
+            <td>${center.category}</td>
             <td><a href="https://www.google.com/maps/search/?api=1&query=${encodedAddress}" target="_blank">${center.areaDesc}</a></td>
-<!--            <td>${center.areaDesc}</td>-->
             <td>${formattedOpens}</td>
             <td>${formattedServices}</td>
             <td><a href="${center.web}" target="_blank">${center.web}</a></td>
-            <td>${center.center_status}</td>
             <td>${center.updated}</td>
             <td>${center.added_by}</td>
             <td>${center.updated_by}</td>
@@ -122,7 +120,6 @@ async function editCenter(id) {
 
     document.getElementById('location').value = center.location;
     document.getElementById('category').value = center.category;
-    document.getElementById('center_status').value = center.center_status;
     document.getElementById('WarningLevel').value = center.warning_level;
     document.getElementById('monday_open').value = center.monday_open;
     document.getElementById('monday_close').value = center.monday_close;
@@ -147,16 +144,16 @@ async function editCenter(id) {
 }
 
 async function deleteCenter(id) {
-    if (confirm('Are you sure you want to delete this community center?')) {
+    if (confirm('Are you sure you want to delete this community centre?')) {
         const response = await fetch(`/api/centers/${id}`, {
             method: 'DELETE'
         });
 
         if (response.ok) {
-            alert('Community center deleted successfully!');
+            alert('Community centre deleted successfully!');
             loadCommunityCenters();
         } else {
-            alert('Error deleting community center.');
+            alert('Error deleting community centre.');
         }
     }
 }
