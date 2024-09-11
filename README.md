@@ -18,5 +18,10 @@ pm2 stop server
 pm2 start server.js
 
 
+# connecting to DB is allowed only from EC2
+use this command
+psql -h reliefandrecoveryinstance.csyhttqbokec.ap-southeast-2.rds.amazonaws.com -d reliefandrecovery -U postgres
+
+
 
 

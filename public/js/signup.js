@@ -5,12 +5,27 @@ document.getElementById('signupForm').addEventListener('submit', function(event)
     const password = document.getElementById('password').value;
     const confirmPassword = document.getElementById('confirmPassword').value;
 
-    if (password !== confirmPassword) {
-        toastr.error('Passwords do not match');
+    const passwordError = document.getElementById('passwordError');
+    const confirmPasswordError = document.getElementById('confirmPasswordError');
+
+    // Clear previous error messages
+    passwordError.textContent = '';
+    confirmPasswordError.textContent = '';
+
+    // Standard password policy
+    const passwordPolicy = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
+    if (!passwordPolicy.test(password)) {
+        passwordError.textContent = 'Password must be at least 8 characters long, contain one uppercase, one lowercase, one number, and one special character.';
         return;
     }
 
-    // You can proceed with the form submission (e.g., send data to the server)
+    if (password !== confirmPassword) {
+        confirmPasswordError.textContent = 'Passwords do not match';
+        return;
+    }
+
+    // Proceed with the form submission (e.g., send data to the server)
     fetch('/signup', {
         method: 'POST',
         headers: {
@@ -21,14 +36,13 @@ document.getElementById('signupForm').addEventListener('submit', function(event)
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                toastr.success('Sign up successful!');
                 window.location.href = '/';
             } else {
-                toastr.error('Sign up failed');
+                passwordError.textContent = 'Sign up failed. Please try again.';
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            toastr.error('An error occurred');
+            passwordError.textContent = 'An error occurred. Please try again later.';
         });
 });

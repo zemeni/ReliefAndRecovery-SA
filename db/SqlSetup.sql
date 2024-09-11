@@ -27,7 +27,8 @@ CREATE TABLE recovery_centers (
     category VARCHAR(250),
     warning_level VARCHAR(100),
     latitude DECIMAL(9,6),
-    longitude DECIMAL(9,6)
+    longitude DECIMAL(9,6),
+    headline VARCHAR(250)
 );
 
 INSERT INTO recovery_centers (

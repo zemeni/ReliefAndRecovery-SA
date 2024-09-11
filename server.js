@@ -116,11 +116,12 @@ app.post('/logout', (req, res) => {
 app.post('/api/centers', async (req, res) => {
     const { category, WarningLevel, location, monday_open, monday_close, tuesday_open, tuesday_close, wednesday_open, wednesday_close, thursday_open, thursday_close, friday_open, friday_close, saturday_open, saturday_close, sunday_open, sunday_close, services_available, website, added_by, updated_by } = req.body;
 
-    const {lat, lng} = await getGeolocation(location);
+    const {lat, lng, suburb} = await getGeolocation(location);
+    const headline = `${suburb}: ${category}`;
     try {
         const result = await pool.query(
-        'INSERT INTO recovery_centers (category, warning_level, monday_open, monday_close, tuesday_open, tuesday_close, wednesday_open, wednesday_close, thursday_open, thursday_close, friday_open, friday_close, saturday_open, saturday_close, sunday_open, sunday_close, location, services_available, website, added_by, updated_by, deleted, last_updated, latitude, longitude) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, FALSE, now(), $22, $23) RETURNING *',
-            [category, WarningLevel, monday_open, monday_close, tuesday_open, tuesday_close, wednesday_open, wednesday_close, thursday_open, thursday_close, friday_open, friday_close, saturday_open, saturday_close, sunday_open, sunday_close, location, services_available, website, added_by, updated_by, lat, lng]
+        'INSERT INTO recovery_centers (category, warning_level, monday_open, monday_close, tuesday_open, tuesday_close, wednesday_open, wednesday_close, thursday_open, thursday_close, friday_open, friday_close, saturday_open, saturday_close, sunday_open, sunday_close, location, services_available, website, added_by, updated_by, deleted, last_updated, latitude, longitude, headline) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, FALSE, now(), $22, $23, $24) RETURNING *',
+            [category, WarningLevel, monday_open, monday_close, tuesday_open, tuesday_close, wednesday_open, wednesday_close, thursday_open, thursday_close, friday_open, friday_close, saturday_open, saturday_close, sunday_open, sunday_close, location, services_available, website, added_by, updated_by, lat, lng, headline]
     );
 
         res.status(201).json("successful");
@@ -155,9 +156,8 @@ app.get('/api/centers', async (req, res) => {
                 services: center.services_available,
                 web: center.website,
                 updated: adelaideTime,
-                added_by: center.added_by,
-                updated_by: center.updated_by,
-                deleted: center.deleted,
+                headline: center.headline,
+                ControlAuthority: 'SAFECOM',
                 opens: formatOpeningHours(center),
                 category: center.category,
                 WarningLevel: center.WarningLevel,
@@ -175,7 +175,7 @@ app.get('/api/centers', async (req, res) => {
     }
 });
 
-// Helper function to get geolocation from address
+// Helper function to get geolocation and suburb from address
 async function getGeolocation(address) {
     try {
         const apiKey = process.env.GOOGLE_API_KEY; // Replace with your actual Google API key
@@ -184,9 +184,25 @@ async function getGeolocation(address) {
 
         if (data.status === 'OK') {
             const location = data.results[0].geometry.location;
+            const addressComponents = data.results[0].address_components;
+
+            // Extracting suburb and state (locality and administrative area)
+            let suburb = '';
+            let state = '';
+
+            addressComponents.forEach(component => {
+                if (component.types.includes('locality')) {
+                    suburb = component.long_name;
+                }
+                if (component.types.includes('administrative_area_level_1')) {
+                    state = component.short_name; // Use short_name for state abbreviations (e.g., "SA")
+                }
+            });
+
             return {
                 lat: location.lat,
-                lng: location.lng
+                lng: location.lng,
+                suburb: `${suburb} ${state}` // Format: 'Marion SA'
             };
         } else {
             console.error(`Geocoding error: ${data.status}`);
@@ -197,6 +213,7 @@ async function getGeolocation(address) {
         return null;
     }
 }
+
 
 // Helper function to format opening hours
 function formatOpeningHours(center) {
