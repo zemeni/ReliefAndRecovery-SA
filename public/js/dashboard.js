@@ -101,7 +101,7 @@ async function loadCommunityCenters() {
             <td><a href="${center.web}" target="_blank">${center.web}</a></td>
             <td>${center.updated}</td>
             <td>${center.added_by}</td>
-            <td>${center.updated_by}</td>
+            <td>${center.updated_by ? center.updated_by : ''}</td>
             <td>
                 <div class="buttons">
                     <button class="button1" onclick="editCenter(${center.id})">Edit</button>

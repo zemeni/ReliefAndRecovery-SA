@@ -161,6 +161,8 @@ app.get('/api/centers', async (req, res) => {
                 opens: formatOpeningHours(center),
                 category: center.category,
                 WarningLevel: center.WarningLevel,
+                added_by: center.added_by,
+                updated_by: center.updated_by,
                 geometry: {
                     x: center.latitude,
                     y: center.longitude
