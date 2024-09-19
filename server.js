@@ -161,6 +161,40 @@ app.get('/api/centers', async (req, res) => {
                 opens: formatOpeningHours(center),
                 category: center.category,
                 WarningLevel: center.WarningLevel,
+                geometry: {
+                    x: center.latitude,
+                    y: center.longitude
+                }
+            };
+        }));
+
+        res.status(200).json(transformedResult);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Error retrieving community centers' });
+    }
+});
+
+// Retrieve all centers
+app.get('/api/centers/internal', async (req, res) => {
+    try {
+        const result = await pool.query('SELECT * FROM recovery_centers where deleted = false ');
+
+        const transformedResult = await Promise.all(result.rows.map(async center => {
+
+            // Convert last_updated to Adelaide time
+            const adelaideTime = moment.utc(center.last_updated).tz('Australia/Adelaide').format('YYYY-MM-DD hh:mm:ss A');
+            return {
+                id: center.id,
+                areaDesc: center.location,
+                services: center.services_available,
+                web: center.website,
+                updated: adelaideTime,
+                headline: center.headline,
+                ControlAuthority: 'SAFECOM',
+                opens: formatOpeningHours(center),
+                category: center.category,
+                WarningLevel: center.WarningLevel,
                 added_by: center.added_by,
                 updated_by: center.updated_by,
                 geometry: {

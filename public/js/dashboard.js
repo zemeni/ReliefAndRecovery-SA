@@ -78,7 +78,7 @@ document.getElementById('communityForm').addEventListener('submit', async functi
 
 async function loadCommunityCenters() {
     console.log("loading community centres");
-    const response = await fetch('/api/centers');
+    const response = await fetch('/api/centers/internal');
     const data = await response.json();
 
     const tbody = document.getElementById('communityTable').querySelector('tbody');
