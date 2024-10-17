@@ -75,7 +75,7 @@ CREATE TABLE users (
 );
 
 -- password admin
-insert into users(email, password) values ('babu@gmail.com','$2b$10$Wip5Lj7Y27NTyBjzU4NUXOUHGJhwDApa.tYatuRPgfO1Xg8Y0kL1i');
+insert into users(email, password, active, isAdmin) values ('babu@gmail.com','$2b$10$Wip5Lj7Y27NTyBjzU4NUXOUHGJhwDApa.tYatuRPgfO1Xg8Y0kL1i', true, true);
 
 
 

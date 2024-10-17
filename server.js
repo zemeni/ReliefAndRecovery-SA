@@ -98,7 +98,7 @@ app.post('/signup', async (req, res) => {
 
     try {
         const result = await pool.query(
-            'INSERT INTO users (email, password, active) VALUES ($1, $2, true) RETURNING id',
+            'INSERT INTO users (email, password, active) VALUES ($1, $2, false) RETURNING id',
             [lowerCaseEmail, hashedPassword]
         );
         res.json({ success: true });
