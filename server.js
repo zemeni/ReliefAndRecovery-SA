@@ -142,7 +142,7 @@ app.get('/api/users', isAuthenticated, async (req, res) => {
 })
 
 // Retrieve all centers
-app.get('/api/centers', async (req, res) => {
+app.get('/api/centres', async (req, res) => {
     try {
         const result = await pool.query('SELECT * FROM recovery_centers where deleted = false ');
 
