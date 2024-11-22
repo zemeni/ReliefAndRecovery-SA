@@ -162,8 +162,8 @@ app.get('/api/centres', async (req, res) => {
                 category: center.category,
                 WarningLevel: center.WarningLevel,
                 geometry: {
-                    x: center.latitude,
-                    y: center.longitude
+                    x: center.longitude,
+                    y: center.latitude
                 }
             };
         }));
