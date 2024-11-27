@@ -48,5 +48,13 @@ Network settings
 - Allow HTTP traffic from internet
 
 
+# using environment
+NODE_ENV=development node server.js
+NODE_ENV=test pm2 start server.js
+NODE_ENV=production pm2 start server.js
+
+
+
+
 
 

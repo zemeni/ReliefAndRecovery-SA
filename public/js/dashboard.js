@@ -1,4 +1,6 @@
 let editingId = null;
+let s_added_by = sessionStorage.getItem("name");
+let s_updated_by = sessionStorage.getItem("name");
 
 document.addEventListener('DOMContentLoaded', () => {
     const isAdmin = sessionStorage.getItem('isAdmin') === 'true';
@@ -8,6 +10,12 @@ document.addEventListener('DOMContentLoaded', () => {
     if (isAdmin) {
         usersLink.style.display = 'block';
     }
+
+    const added_by = document.getElementById('added_by');
+    added_by.value = s_added_by;
+
+    const updated_by = document.getElementById('updated_by');
+    updated_by.value = s_updated_by;
 });
 
 
@@ -41,10 +49,12 @@ document.getElementById('communityForm').addEventListener('submit', async functi
     };
 
     if (editingId) {
-        const response = await fetch(`/api/centers/${editingId}`, {
+        const idToken = sessionStorage.getItem("idToken");
+        const response = await fetch(`api/rar/centers/${editingId}`, {
             method: 'PUT',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${idToken}`
             },
             body: JSON.stringify(formData)
         });
@@ -52,22 +62,26 @@ document.getElementById('communityForm').addEventListener('submit', async functi
         if (response.ok) {
             alert('Community centre updated successfully!');
             editingId = null;
-            document.getElementById('communityForm').reset();
+            resetForm();
+            // document.getElementById('communityForm').reset();
         } else {
             alert('Error updating community centre.');
         }
     } else {
-        const response = await fetch('/api/centers', {
+       const idToken = sessionStorage.getItem("idToken");
+        const response = await fetch('api/rar/centers', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${idToken}`
             },
             body: JSON.stringify(formData)
         });
 
         if (response.ok) {
             alert('Community centre added successfully!');
-            document.getElementById('communityForm').reset();
+            resetForm();
+            // document.getElementById('communityForm').reset();
         } else {
             alert('Error adding community centre.');
         }
@@ -77,8 +91,7 @@ document.getElementById('communityForm').addEventListener('submit', async functi
 });
 
 async function loadCommunityCenters() {
-    console.log("loading community centres");
-    const response = await fetch('/api/centers/internal');
+    const response = await fetch('api/rar/centers/internal');
     const data = await response.json();
 
     const tbody = document.getElementById('communityTable').querySelector('tbody');
@@ -115,8 +128,11 @@ async function loadCommunityCenters() {
 }
 
 async function editCenter(id) {
-    const response = await fetch(`/api/centers/${id}`);
+    const response = await fetch(`api/rar/centers/${id}`);
     const center = await response.json();
+
+    s_added_by = center.added_by;
+    s_updated_by = sessionStorage.getItem("name");
 
     document.getElementById('location').value = center.location;
     document.getElementById('category').value = center.category;
@@ -137,16 +153,21 @@ async function editCenter(id) {
     document.getElementById('sunday_close').value = center.sunday_close;
     document.getElementById('services_available').value = center.services_available.join(', ');
     document.getElementById('website').value = center.website;
-    document.getElementById('added_by').value = center.added_by;
-    document.getElementById('updated_by').value = center.updated_by;
+    document.getElementById('added_by').value = s_added_by;
+    document.getElementById('updated_by').value = s_updated_by;
 
     editingId = id;
 }
 
 async function deleteCenter(id) {
     if (confirm('Are you sure you want to delete this community centre?')) {
-        const response = await fetch(`/api/centers/${id}`, {
-            method: 'DELETE'
+        const idToken = sessionStorage.getItem("idToken");
+        const response = await fetch(`api/rar/centers/${id}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${idToken}`
+            },
         });
 
         if (response.ok) {
@@ -158,15 +179,27 @@ async function deleteCenter(id) {
     }
 }
 
+/*// Logout Button Event Listener
+document.getElementById("logoutButton").addEventListener("click", () => {
+    msalInstance.logoutPopup()
+        .then(() => {
+            console.log("Logged out");
+        })
+        .catch((error) => {
+            console.error("Logout failed", error);
+        });
+});*/
+
 document.getElementById('logoutButton').addEventListener('click', () => {
 
     const confirm = window.confirm('Are you sure you want to logout?');
-
     if(confirm) {
-        fetch('/logout', {
+        const idToken = sessionStorage.getItem("idToken");
+        fetch('api/auth/logout', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${idToken}`
             }
         })
             .then(response => response.json())
@@ -182,6 +215,11 @@ document.getElementById('logoutButton').addEventListener('click', () => {
             });
     }
 });
+
+const resetForm = () => {
+    document.getElementById('communityForm').reset();
+    window.location.reload();
+}
 
 
 

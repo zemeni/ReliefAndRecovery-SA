@@ -3,23 +3,64 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
-    <link rel="stylesheet" href="/css/login_styles.css">
+    <title>Login | MSAL Authentication</title>
+    <script src="https://alcdn.msauth.net/browser/2.32.0/js/msal-browser.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #72a9cf, #dfe6e6);
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            text-align: center;
+        }
+
+        .container {
+            background: rgba(234, 229, 229, 0.1);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: #0c0c0c;
+        }
+
+        p {
+            margin-bottom: 2rem;
+            font-size: 1rem;
+            line-height: 1.5;
+            color: rgba(27, 26, 26, 0.8);
+        }
+
+        button {
+            background: #66aa5e;
+            border: none;
+            color: #fff;
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        button:hover {
+            background: #005a9e;
+        }
+    </style>
 </head>
 <body>
-<div class="form-container">
-    <h1>Login</h1>
-    <form id="loginForm">
-        <label for="username">Username:</label>
-        <input type="text" id="username" name="username" required>
-        <label for="password">Password:</label>
-        <input type="password" id="password" name="password" required>
-        <div class="button-container">
-            <button type="submit">Login</button>
-        </div>
-    </form>
-    <p>Don't have an account? <a href="/signup">Sign up</a></p>
+<div class="container">
+    <h1>Welcome</h1>
+    <p>Sign in with your Microsoft account to access the application.</p>
+    <button id="loginButton">Login with Microsoft</button>
 </div>
-<script src="/js/login.js"></script>
+<script type="module" src="js/login.js"></script>
 </body>
 </html>

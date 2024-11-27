@@ -1,5 +1,6 @@
 node_modules
 .env
+.env.*
 ReliefAndRecovery_05_08_2024.zip
 ReliefAndRecovery_17_10_2024.zip
 ReliefAndRecovery_19_09_2024.zip

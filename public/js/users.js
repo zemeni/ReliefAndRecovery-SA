@@ -1,14 +1,12 @@
 document.addEventListener('DOMContentLoaded', () => {
 
     const isAdmin = sessionStorage.getItem('isAdmin') === 'true';
-    console.log("is Admin? ", isAdmin);
     const usersLink = document.getElementById('usersLink');
 
     // Show the users link if the user is an admin
     if (isAdmin) {
         usersLink.style.display = 'block';
     }
-    console.log("inside users page");
     loadUsers();
 });
 
@@ -21,7 +19,6 @@ async function loadUsers() {
             throw new Error('Network response was not ok');
         }
         const data = await response.json();
-        console.log("data received ", data);
         populateTable(data);
     } catch (error) {
         console.error('Error loading users:', error);
@@ -117,7 +114,6 @@ async function handleEdit(event) {
 }
 
 document.getElementById('logoutButton').addEventListener('click', () => {
-    console.log("logout button clicked!");
 
     const confirm = window.confirm('Are you sure you want to logout?');
 

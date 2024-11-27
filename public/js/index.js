@@ -1,7 +1,5 @@
 let editingId = null;
 
-console.log("inside script.js");
-
 document.addEventListener('DOMContentLoaded', () => {
     const profileIcon = document.querySelector('.profile-icon');
     const logoutMenu = document.getElementById('logoutMenu');
@@ -88,7 +86,6 @@ document.getElementById('communityForm').addEventListener('submit', async functi
             alert('Error updating community center.');
         }
     } else {
-        console.log("form data is ::", formData);
         const response = await fetch('/api/centers', {
             method: 'POST',
             headers: {
@@ -111,8 +108,6 @@ document.getElementById('communityForm').addEventListener('submit', async functi
 async function loadCommunityCenters() {
     const response = await fetch('/api/centers/internal');
     const data = await response.json();
-
-    console.log("I'm getting following data::", data);
 
     const tbody = document.getElementById('communityTable').querySelector('tbody');
     tbody.innerHTML = '';
@@ -155,7 +150,6 @@ async function editCenter(id) {
     const response = await fetch(`/api/centers/${id}`);
     const center = await response.json();
 
-    console.log("edit center data is ", center);
 
     document.getElementById('location').value = center.location;
     document.getElementById('category').value = center.category;
@@ -199,7 +193,6 @@ async function deleteCenter(id) {
 }
 
 async function convertAddressToGeocode(address) {
-    console.log("converting address to geocode");
     const apiKey = 'AIzaSyBzOoy52QJa0Offg7IvXQB9TBRsPCvCQYA'; // Replace with your actual API key
     const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${apiKey}`;
 
@@ -209,7 +202,7 @@ async function convertAddressToGeocode(address) {
 
         if(data.status === 'OK') {
             const result = data.results[0].geometry.location;
-            console.log("geocode is ::", result);
+
         }else {
             throw new Error('Error converting address to Geocode')
         }
@@ -220,7 +213,6 @@ async function convertAddressToGeocode(address) {
 }
 
 document.getElementById('logoutButton').addEventListener('click', () => {
-    console.log("logout button clicked!");
 
     fetch('/logout', {
         method: 'POST',

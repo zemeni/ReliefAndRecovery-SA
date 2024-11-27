@@ -14,7 +14,7 @@
     <div class="title">Relief And Recovery Centre</div>
     <div class="nav-links">
         <a href="dashboard.html"  class="nav-links" style="color:white;">Dashboard</a>
-        <a href="users.html" id="usersLink" style="display: none; color: white" class="nav-links">Users</a>
+<!--        <a href="users.html" id="usersLink" style="display: none; color: white" class="nav-links">Users</a>-->
         <button class="button3" id="logoutButton">Logout</button>
     </div>
 </div>
@@ -90,10 +90,10 @@
         <input type="url" id="website" name="website" placeholder="https://www.alert.sa.gov.au/">
 
         <label for="added_by">Added By:</label>
-        <input type="text" id="added_by" name="added_by" required>
+        <input type="text" id="added_by" name="added_by" readonly>
 
         <label for="updated_by">Updated By:</label>
-        <input type="text" id="updated_by" name="updated_by" placeholder="optional">
+        <input type="text" id="updated_by" name="updated_by" placeholder="optional" readonly>
 
         <div class="button-container">
             <button type="submit">Submit</button>
@@ -126,7 +126,13 @@
 <script>
     async function loadGoogleMapsApi() {
         try {
-            const response = await fetch('/api/key');
+            const idToken = sessionStorage.getItem("idToken");
+            const response = await fetch(`/api/auth/google_key`, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${idToken}`
+                },
+            });
             const data = await response.json();
             const script = document.createElement('script');
             script.src = `https://maps.googleapis.com/maps/api/js?key=${data.key}&libraries=places&callback=initMap&loading=async`;
