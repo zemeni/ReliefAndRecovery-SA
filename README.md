@@ -19,7 +19,7 @@ pm2 stop server
 # Deployment
 Deployment is done manually
 
-scp -i .\ReliefAndRecovery.pem .\ReliefAndRecoveryProjects\ReliefAndRecovery-SA\ReliefAndRecovery_19_09_2024.zip ubuntu@54.206.216.112:/home/ubuntu
+scp -i .\ReliefAndRecovery.pem .\ReliefAndRecoveryProjects\ReliefAndRecovery-SA\ReliefAndRecovery_28_11_2024.zip ubuntu@54.206.216.112:/home/ubuntu
 scp -i .\ReliefAndRecovery.pem .\ReliefAndRecoveryProjects\ReliefAndRecovery-SA\ReliefAndRecovery_19_09_2024.zip ubuntu@13.211.154.157:/home/ubuntu
 
 ssh -i "ReliefAndRecovery.pem" ubuntu@ec2-54-206-216-112.ap-southeast-2.compute.amazonaws.com
