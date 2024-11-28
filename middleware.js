@@ -27,7 +27,7 @@ function authenticateToken(req, res, next) {
     if (!token) return res.status(401).send('Please login first');
 
     jwt.verify(token, getKey, { algorithms: ['RS256'] }, (err, decoded) => {
-        if (err) return res.status(403).send('Invalid token');
+        if (err) return res.status(403).send('Invalid or expired token');
         res.user = decoded;
         res.token = token;
         next();

@@ -12,6 +12,7 @@ app.use(express.json());
 const {formatOpeningHours} = require("../services/util");
 const cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser");
+const {authenticateToken} = require("../middleware");
 
 app.use(bodyParser.json());
 app.use(cookieParser());
@@ -49,6 +50,17 @@ router.get('/centres', async (req, res) => {
         console.error(err);
         res.status(500).json({ error: 'Error retrieving community centers' });
     }
+});
+
+router.post('/logout', authenticateToken, (req, res) => {
+    // Clear the authToken cookie
+    res.clearCookie('authToken', {
+        httpOnly: true,
+        secure: true, // Use true if using HTTPS
+        sameSite: 'strict'
+    });
+
+    res.json({ success: true, message: 'Logged out successfully' });
 });
 
 

@@ -10,7 +10,7 @@ app.use(express.json());
 
 
 
-const {formatOpeningHours} = require("../services/util");
+const {formatOpeningHours, getGeolocation} = require("../services/util");
 const cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser");
 

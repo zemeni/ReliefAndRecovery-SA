@@ -19,7 +19,6 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 
-
 document.getElementById('communityForm').addEventListener('submit', async function (event) {
     event.preventDefault();
 
@@ -27,20 +26,20 @@ document.getElementById('communityForm').addEventListener('submit', async functi
         category: document.getElementById('category').value,
         WarningLevel: document.getElementById('WarningLevel').value,
         // center_status: document.getElementById('center_status').value,
-        monday_open: document.getElementById('monday_open').value !== '' ? document.getElementById('monday_open').value: null,
-        monday_close: document.getElementById('monday_close').value !== '' ? document.getElementById('monday_close').value: null,
-        tuesday_open: document.getElementById('tuesday_open').value !== '' ? document.getElementById('tuesday_open').value: null,
-        tuesday_close: document.getElementById('tuesday_close').value !== '' ? document.getElementById('tuesday_close').value: null,
-        wednesday_open: document.getElementById('wednesday_open').value !== '' ? document.getElementById('wednesday_open').value: null,
-        wednesday_close: document.getElementById('wednesday_close').value !== '' ? document.getElementById('wednesday_close').value: null,
-        thursday_open: document.getElementById('thursday_open').value !== '' ? document.getElementById('thursday_open').value: null,
-        thursday_close: document.getElementById('thursday_close').value !== '' ? document.getElementById('thursday_close').value: null,
-        friday_open: document.getElementById('friday_open').value !== '' ? document.getElementById('friday_open').value: null,
-        friday_close: document.getElementById('friday_close').value !== '' ? document.getElementById('friday_close').value: null,
-        saturday_open: document.getElementById('saturday_open').value !== '' ? document.getElementById('saturday_open').value: null,
-        saturday_close: document.getElementById('saturday_close').value !== '' ? document.getElementById('saturday_close').value: null,
-        sunday_open: document.getElementById('sunday_open').value !== '' ? document.getElementById('sunday_open').value: null,
-        sunday_close: document.getElementById('sunday_close').value !== '' ? document.getElementById('sunday_close').value: null,
+        monday_open: document.getElementById('monday_open').value !== '' ? document.getElementById('monday_open').value : null,
+        monday_close: document.getElementById('monday_close').value !== '' ? document.getElementById('monday_close').value : null,
+        tuesday_open: document.getElementById('tuesday_open').value !== '' ? document.getElementById('tuesday_open').value : null,
+        tuesday_close: document.getElementById('tuesday_close').value !== '' ? document.getElementById('tuesday_close').value : null,
+        wednesday_open: document.getElementById('wednesday_open').value !== '' ? document.getElementById('wednesday_open').value : null,
+        wednesday_close: document.getElementById('wednesday_close').value !== '' ? document.getElementById('wednesday_close').value : null,
+        thursday_open: document.getElementById('thursday_open').value !== '' ? document.getElementById('thursday_open').value : null,
+        thursday_close: document.getElementById('thursday_close').value !== '' ? document.getElementById('thursday_close').value : null,
+        friday_open: document.getElementById('friday_open').value !== '' ? document.getElementById('friday_open').value : null,
+        friday_close: document.getElementById('friday_close').value !== '' ? document.getElementById('friday_close').value : null,
+        saturday_open: document.getElementById('saturday_open').value !== '' ? document.getElementById('saturday_open').value : null,
+        saturday_close: document.getElementById('saturday_close').value !== '' ? document.getElementById('saturday_close').value : null,
+        sunday_open: document.getElementById('sunday_open').value !== '' ? document.getElementById('sunday_open').value : null,
+        sunday_close: document.getElementById('sunday_close').value !== '' ? document.getElementById('sunday_close').value : null,
         location: document.getElementById('location').value,
         services_available: document.getElementById('services_available').value.split(',').map(item => item.trim()),
         website: document.getElementById('website').value,
@@ -68,7 +67,7 @@ document.getElementById('communityForm').addEventListener('submit', async functi
             alert('Error updating community centre.');
         }
     } else {
-       const idToken = sessionStorage.getItem("idToken");
+        const idToken = sessionStorage.getItem("idToken");
         const response = await fetch('api/rar/centers', {
             method: 'POST',
             headers: {
@@ -127,7 +126,8 @@ async function loadCommunityCenters() {
     });
 }
 
-async function editCenter(id) {
+window.editCenter = async function w(id) {
+    console.log("editing id", id);
     const response = await fetch(`api/rar/centers/${id}`);
     const center = await response.json();
 
@@ -159,7 +159,7 @@ async function editCenter(id) {
     editingId = id;
 }
 
-async function deleteCenter(id) {
+window.deleteCenter = async function (id) {
     if (confirm('Are you sure you want to delete this community centre?')) {
         const idToken = sessionStorage.getItem("idToken");
         const response = await fetch(`api/rar/centers/${id}`, {
@@ -190,7 +190,7 @@ document.getElementById("logoutButton").addEventListener("click", () => {
         });
 });*/
 
-document.getElementById('logoutButton').addEventListener('click', () => {
+/*document.getElementById('logoutButton').addEventListener('click', () => {
 
     const confirm = window.confirm('Are you sure you want to logout?');
     if(confirm) {
@@ -215,12 +215,52 @@ document.getElementById('logoutButton').addEventListener('click', () => {
             });
     }
 });
+ */
+const response = await fetch(`api/auth/msal_key`, {
+    headers: {
+        'Content-Type': 'application/json'
+    },
+});
+const data = await response.json();
+
+// MSAL Configuration
+const msalConfig = {
+    auth: {
+        clientId: data.clientId,
+        authority: `https://login.microsoftonline.com/${data.tenantId}`,
+        redirectUri: data.redirectURI,
+    }
+};
+
+const msalInstance = new msal.PublicClientApplication(msalConfig);
+
+
+document.getElementById("logoutButton").addEventListener("click", () => {
+    fetch('/api/logout', {
+        method: 'POST',
+        credentials: 'include', // Ensures cookies are sent
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                msalInstance.logoutRedirect(); // Redirect only after successful logout
+            } else {
+                alert('Logout failed');
+            }
+        })
+        .catch(error => {
+            console.error('Error during logout:', error);
+        });
+});
+
 
 const resetForm = () => {
     document.getElementById('communityForm').reset();
     window.location.reload();
 }
-
 
 
 // Load community centers on page load

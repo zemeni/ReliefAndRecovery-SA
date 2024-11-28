@@ -57,14 +57,4 @@ msalInstance.handleRedirectPromise()
         console.error("Login failed", error);
     });
 
-/*// Logout Button Event Listener
-document.getElementById("logoutButton").addEventListener("click", () => {
-    msalInstance.logoutPopup()
-        .then(() => {
-            console.log("Logged out");
-        })
-        .catch((error) => {
-            console.error("Logout failed", error);
-        });
-});*/
 

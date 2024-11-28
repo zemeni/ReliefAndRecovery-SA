@@ -4,12 +4,12 @@ const {authenticateToken} = require("../middleware");
 const pool = require("../services/dbService");
 const router = express.Router();
 
-router.get('/msal_key', (req, res) => {
-    res.json({ clientId: process.env.MSAL_CLIENT_ID, tenantId: process.env.MSAL_TENTANT_ID, redirectURI: process.env.MSAL_REDIRECT_URI });
+router.get('/msal_key', async (req, res) => {
+    res.json({ clientId: process.env.MSAL_CLIENT_ID, tenantId: process.env.MSAL_TENTANT_ID, redirectURI: process.env.MSAL_REDIRECT_URI, environment: process.env.NODE_ENV });
 });
 
 // Google API key
-router.get('/google_key', authenticateToken, (req, res) => {
+router.get('/google_key', authenticateToken, async (req, res) => {
     res.json({ key: process.env.GOOGLE_API_KEY });
 });
 
@@ -38,12 +38,13 @@ router.post('/login', authenticateToken, (req, res) => {
     const token  = res.token;
     res.cookie('authToken', token, {
         httpOnly: true,
-        secure: true
+        secure: true,
+        sameSite: 'strict'
     } )
     res.json({ success: true, email: preferred_username, name: name });
 });
 
-router.post('/logout', authenticateToken, (req, res) => {
+/*router.post('/logout', authenticateToken, (req, res) => {
     // Clear the authToken cookie
     res.clearCookie('authToken', {
         httpOnly: true,
@@ -52,7 +53,7 @@ router.post('/logout', authenticateToken, (req, res) => {
     });
 
     res.json({ success: true, message: 'Logged out successfully' });
-});
+});*/
 
 /* Database login
 router.post('/login', async (req, res) => {
